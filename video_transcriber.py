@@ -28,19 +28,81 @@ CHUNK_SIZE = 30  # seconds (longer chunk for better alignment)
 
 def clean_text(text):
     """Clean and normalize text for comparison."""
+    if not text:
+        return ""
+
     # Convert to lowercase
     text = text.lower()
 
-    # Replace domain names with generic placeholder
-    text = re.sub(r"[a-z0-9]+\.com", "website", text)
-    text = re.sub(r"[a-z0-9]+\.org", "website", text)
-    text = re.sub(r"[a-z0-9]+\.net", "website", text)
+    # Handle special characters and symbols
+    replacements = {
+        "&": "and",  # Replace ampersand
+        "Â": "",  # Remove special space character
+        "…": "...",  # Replace ellipsis
+        "–": "-",  # Replace en dash
+        "—": "-",  # Replace em dash
+        "″": "",  # Remove double prime
+        "′": "",  # Remove prime
+        "„": "",  # Remove low double quote
+        "‟": "",  # Remove high double quote
+        "‚": "",  # Remove low single quote
+        "‛": "",  # Remove high single quote
+        "«": "",  # Remove left double angle quote
+        "»": "",  # Remove right double angle quote
+        "‹": "",  # Remove left single angle quote
+        "›": "",  # Remove right single angle quote
+        ".": " dot ",  # Replace dot with spoken form
+        "/": " slash ",  # Replace slash with spoken form
+        "-": " dash ",  # Replace dash with spoken form
+        "_": " underscore ",  # Replace underscore with spoken form
+        "@": " at ",  # Replace at symbol with spoken form
+        "#": " hash ",  # Replace hash with spoken form
+        "+": " plus ",  # Replace plus with spoken form
+        "=": " equals ",  # Replace equals with spoken form
+        "?": " question mark ",  # Replace question mark with spoken form
+        "!": " exclamation mark ",  # Replace exclamation mark with spoken form
+        "'": "",  # Remove single quote
+        '"': "",  # Remove double quote
+        ",": "",  # Remove comma
+    }
 
-    # Remove special characters except apostrophes
-    text = "".join(c for c in text if c.isalnum() or c == "'")
+    # Apply replacements
+    for old, new in replacements.items():
+        text = text.replace(old, new)
 
-    # Remove extra whitespace
-    text = " ".join(text.split())
+    # Handle URLs and domains
+    text = re.sub(r"([a-z0-9]+)\.(com|org|net)", r"\1 dot \2", text)
+
+    # Remove any remaining special characters except alphanumeric, spaces, and 'dot' (periods are already replaced)
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+
+    # Normalize whitespace
+    text = re.sub(r"\s+", " ", text)
+
+    # Remove common filler words
+    filler_words = {
+        "um",
+        "uh",
+        "ah",
+        "er",
+        "like",
+        "you know",
+        "i mean",
+        "well",
+        "so",
+        "basically",
+        "actually",
+        "literally",
+        "just",
+        "kind of",
+        "sort of",
+        "you see",
+    }
+    words = text.split()
+    words = [w for w in words if w not in filler_words]
+
+    # Final cleanup
+    text = " ".join(words).strip()
 
     return text
 
@@ -245,80 +307,71 @@ class VideoTranscriber:
     def find_best_match(self, caption, transcribed_words, window=2.0):
         """Find the best matching transcribed text for a complete caption."""
         start, end = caption["start"], caption["end"]
-        # Allow a window before and after
-        window_start = start - window
-        window_end = end + window
 
-        # Get words in the time window
-        words_in_window = [
-            w
-            for w in transcribed_words
-            if w["end"] >= window_start and w["start"] <= window_end
-        ]
+        # Try different window sizes to find the best match
+        window_sizes = [window, window * 1.5, window * 2.0]
+        best_match = None
+        best_accuracy = 0
+        best_words = []
 
-        if not words_in_window:
-            return "", []
+        original_text = clean_text(caption["text"])
 
-        # Join words to form the transcribed text for this window
-        transcribed_text = " ".join(w["word"] for w in words_in_window)
-        original_text = caption["text"]
+        for current_window in window_sizes:
+            # Allow a window before and after
+            window_start = start - current_window
+            window_end = end + current_window
 
-        # Clean both texts for comparison
-        clean_transcribed = clean_text(transcribed_text)
-        clean_original = clean_text(original_text)
+            # Get words in the time window
+            words_in_window = [
+                w
+                for w in transcribed_words
+                if w["end"] >= window_start and w["start"] <= window_end
+            ]
 
-        # Skip empty or whitespace-only texts
-        if not clean_transcribed.strip() or not clean_original.strip():
-            return transcribed_text, words_in_window
+            if not words_in_window:
+                continue
 
-        # Calculate word error rate
-        try:
-            error = jiwer.process_words(clean_original, clean_transcribed)
-            total_errors = error.substitutions + error.deletions + error.insertions
-            total_words = error.hits + error.substitutions + error.deletions
+            # Join words to form the transcribed text for this window
+            transcribed_text = " ".join(w["word"] for w in words_in_window)
+            clean_transcribed = clean_text(transcribed_text)
 
-            # If there are significant errors, try to find a better match by adjusting the window
-            if total_errors > 0 and total_words > 0:
-                # Try with a larger window
-                larger_window = window * 1.5
-                larger_words = [
-                    w
-                    for w in transcribed_words
-                    if w["end"] >= start - larger_window
-                    and w["start"] <= end + larger_window
-                ]
-                if larger_words:
-                    larger_text = " ".join(w["word"] for w in larger_words)
-                    larger_clean = clean_text(larger_text)
-                    larger_error = jiwer.process_words(clean_original, larger_clean)
-                    larger_total_errors = (
-                        larger_error.substitutions
-                        + larger_error.deletions
-                        + larger_error.insertions
-                    )
+            # Skip empty or whitespace-only texts
+            if not clean_transcribed.strip() or not original_text.strip():
+                continue
 
-                    # Use the larger window if it gives better results
-                    if larger_total_errors < total_errors:
-                        return larger_text, larger_words
+            # Calculate word error rate
+            try:
+                error = jiwer.process_words(original_text, clean_transcribed)
+                total = error.hits + error.substitutions + error.deletions
+                accuracy = (error.hits / total) * 100 if total > 0 else 0.0
 
-            return transcribed_text, words_in_window
+                # Update best match if this is better
+                if accuracy > best_accuracy:
+                    best_accuracy = accuracy
+                    best_match = transcribed_text
+                    best_words = words_in_window
 
-        except Exception as e:
-            console.print(f"[yellow]Warning: Error comparing texts: {str(e)}[/yellow]")
-            console.print(f"[yellow]Original: {clean_original}[/yellow]")
-            console.print(f"[yellow]Transcribed: {clean_transcribed}[/yellow]")
-            return transcribed_text, words_in_window
+            except Exception as e:
+                console.print(
+                    f"[yellow]Warning: Error comparing texts: {str(e)}[/yellow]"
+                )
+                continue
+
+        return best_match or transcribed_text, best_words or words_in_window
 
     def process_video(self, url: str) -> List[Dict]:
         if not self.model:
             self.load_model()
+
         # Extract captions
         self.captions = self.extract_captions(url)
         self.console.print(
             f"[bold yellow]Extracted {len(self.captions)} captions[/bold yellow]"
         )
+
         # Download audio only
         audio_path = self.download_audio(url)
+
         # Transcribe the whole audio with word timestamps
         self.transcribed_words = self.transcribe_audio(audio_path)
         self.console.print(
@@ -326,69 +379,85 @@ class VideoTranscriber:
         )
         os.remove(audio_path)
 
-        # For each caption, find the best matching transcribed text
+        # --- NEW: Stitch all transcribed words into a single normalized string ---
+        transcribed_full = " ".join([w["word"] for w in self.transcribed_words])
+        transcribed_full_norm = clean_text(transcribed_full)
+        transcribed_full_words = transcribed_full_norm.split()
+
         results = []
         for caption in self.captions:
-            original = clean_text(caption["text"])
-            transcribed, words_in_window = self.find_best_match(
-                caption, self.transcribed_words, window=2.0
-            )
+            original_text = caption["text"]
+            normalized_text = clean_text(original_text.lower())
+            norm_words = normalized_text.split()
+            n = len(norm_words)
 
-            # Skip empty or whitespace-only texts
-            if not original.strip() or not transcribed.strip():
+            # --- Sliding window over the full transcription ---
+            best_accuracy = 0.0
+            best_window = ""
+            best_error = None
+            best_offset = None
+            for i in range(len(transcribed_full_words) - n + 1):
+                window_words = transcribed_full_words[i : i + n]
+                window_text = " ".join(window_words)
+                try:
+                    error = jiwer.process_words(normalized_text, window_text)
+                    total = error.hits + error.substitutions + error.deletions
+                    accuracy = (error.hits / total) * 100 if total > 0 else 0.0
+                    if accuracy > best_accuracy:
+                        best_accuracy = accuracy
+                        best_window = window_text
+                        best_error = error
+                        best_offset = i  # word offset in the full transcription
+                except Exception as e:
+                    continue
+
+            # If no match found, skip
+            if not best_window:
                 continue
 
-            self.console.print(
-                f"[cyan]Caption: {caption['text']} | Start: {caption['start']} | End: {caption['end']} | Words in window: {len(words_in_window)}[/cyan]"
+            # For reporting, try to estimate spoken_start/spoken_end from offset
+            spoken_start = spoken_end = None
+            if best_offset is not None and n > 0:
+                # Map word offset to time using transcribed_words
+                try:
+                    spoken_start = self.transcribed_words[best_offset]["start"]
+                    spoken_end = self.transcribed_words[best_offset + n - 1]["end"]
+                except Exception:
+                    pass
+
+            # Status
+            if best_accuracy >= 95:
+                status = "PERFECT"
+            elif best_accuracy >= 90:
+                status = "GOOD"
+            elif best_accuracy >= 80:
+                status = "FAIR"
+            else:
+                status = "POOR"
+
+            results.append(
+                {
+                    "caption_start": caption["start"],
+                    "caption_end": caption["end"],
+                    "original": original_text,
+                    "normalized": normalized_text,
+                    "transcribed": best_window,
+                    "accuracy": best_accuracy,
+                    "spoken_start": spoken_start,
+                    "spoken_end": spoken_end,
+                    "offset": (
+                        spoken_start - caption["start"]
+                        if spoken_start is not None
+                        else None
+                    ),
+                    "status": status,
+                    "errors": {
+                        "substitutions": best_error.substitutions if best_error else 0,
+                        "deletions": best_error.deletions if best_error else 0,
+                        "insertions": best_error.insertions if best_error else 0,
+                    },
+                }
             )
-
-            # Calculate accuracy (WER)
-            try:
-                error = jiwer.process_words(original, transcribed)
-                total = error.hits + error.substitutions + error.deletions
-                accuracy = (error.hits / total) * 100 if total > 0 else 0.0
-
-                # Find actual spoken start/end if any words matched
-                if words_in_window:
-                    spoken_start = words_in_window[0]["start"]
-                    spoken_end = words_in_window[-1]["end"]
-                    offset = spoken_start - caption["start"]
-                else:
-                    spoken_start = spoken_end = offset = None
-
-                # Determine match/mismatch status with more granular thresholds
-                if accuracy >= 95:
-                    status = "PERFECT"
-                elif accuracy >= 90:
-                    status = "GOOD"
-                elif accuracy >= 80:
-                    status = "FAIR"
-                else:
-                    status = "POOR"
-
-                results.append(
-                    {
-                        "caption_start": caption["start"],
-                        "caption_end": caption["end"],
-                        "original": caption["text"],
-                        "transcribed": transcribed,
-                        "accuracy": accuracy,
-                        "spoken_start": spoken_start,
-                        "spoken_end": spoken_end,
-                        "offset": offset,
-                        "status": status,
-                        "errors": {
-                            "substitutions": error.substitutions,
-                            "deletions": error.deletions,
-                            "insertions": error.insertions,
-                        },
-                    }
-                )
-            except Exception as e:
-                self.console.print(
-                    f"[yellow]Warning: Error processing caption: {str(e)}[/yellow]"
-                )
-                continue
 
         self.display_table(results)
         return results
@@ -398,6 +467,7 @@ class VideoTranscriber:
         table.add_column("Caption Start", style="cyan", justify="right")
         table.add_column("Caption End", style="cyan", justify="right")
         table.add_column("Original Caption", style="yellow")
+        table.add_column("Normalized Original", style="blue")
         table.add_column("Transcribed (Whisper)", style="magenta")
         table.add_column("Accuracy %", style="green", justify="right")
         table.add_column("Offset (s)", style="red", justify="right")
@@ -428,11 +498,17 @@ class VideoTranscriber:
                 "POOR": "red",
             }.get(row["status"], "white")
 
+            # Highlight mismatches in transcribed text
+            transcribed = row["transcribed"]
+            if row["accuracy"] < 90:  # Only highlight if accuracy is less than 90%
+                transcribed = f"[red]{transcribed}[/red]"
+
             table.add_row(
                 f"{row['caption_start']:.2f}",
                 f"{row['caption_end']:.2f}",
-                row["original"],
-                row["transcribed"],
+                row["original"],  # Show original exactly as extracted
+                f"[blue]{row['normalized']}[/blue]",  # Show normalized version in blue
+                transcribed,  # Show transcribed with potential highlighting
                 f"[{acc_color}]{row['accuracy']:.1f}[/{acc_color}]",
                 offset_str,
                 f"[{status_color}]{row['status']}[/{status_color}]",
