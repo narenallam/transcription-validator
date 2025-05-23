@@ -1,0 +1,12 @@
+yt-dlp==2024.3.10
+faster-whisper==0.10.0
+rich==13.7.0
+pydub==0.25.1
+numpy==1.26.4
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch==2.2.1
+ffmpeg-python==0.2.0
+setuptools>=65.5.1
+wheel>=0.38.0
+jiwer==3.0.3
+webvtt-py==0.4.6 

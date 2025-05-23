@@ -1,0 +1,178 @@
+[
+  {
+    "caption_start": 0.0,
+    "caption_end": 7.84,
+    "original": "Here's how to update drivers on your PowerEdge\u00c2\u00a0\nserver using a Dell Update Package, or DUP.",
+    "transcribed": "here's how to update drivers on your poweredge server using a dell update package or dup go to dell com slash support and",
+    "accuracy": 0.0,
+    "spoken_start": 0.7599999999999993,
+    "spoken_end": 10.0,
+    "offset": 0.7599999999999993,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 22
+    }
+  },
+  {
+    "caption_start": 7.84,
+    "caption_end": 12.88,
+    "original": "Go to dell.com/support and enter your\u00c2\u00a0\nsystems service tag, or click 'Browse",
+    "transcribed": "dup go to dell com slash support and enter your system's service tag or click browse all products to select it manually",
+    "accuracy": 0.0,
+    "spoken_start": 5.82,
+    "spoken_end": 14.7,
+    "offset": -2.0199999999999996,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 21
+    }
+  },
+  {
+    "caption_start": 12.88,
+    "caption_end": 22.48,
+    "original": "all Products' to select it manually.\nSelect 'Drivers and Downloads',",
+    "transcribed": "service tag or click browse all products to select it manually select drivers and downloads and choose the os you have installed",
+    "accuracy": 0.0,
+    "spoken_start": 10.84,
+    "spoken_end": 24.12,
+    "offset": -2.040000000000001,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 21
+    }
+  },
+  {
+    "caption_start": 22.48,
+    "caption_end": 30.0,
+    "original": "and choose the OS you have installed.\nUnder 'Download Type' select 'Driver', then under",
+    "transcribed": "and choose the os you have installed under download type select driver then under category select the",
+    "accuracy": 0.0,
+    "spoken_start": 22.02,
+    "spoken_end": 32.12,
+    "offset": -0.46000000000000085,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 16
+    }
+  },
+  {
+    "caption_start": 30.0,
+    "caption_end": 30.88,
+    "original": "and choose the OS you have installed.\nUnder 'Download Type' select 'Driver', then under",
+    "transcribed": "type select driver then under category select the type of driver you need",
+    "accuracy": 0.0,
+    "spoken_start": 27.92,
+    "spoken_end": 33.02,
+    "offset": -2.0799999999999983,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 12
+    }
+  },
+  {
+    "caption_start": 30.88,
+    "caption_end": 40.16,
+    "original": "'Category' select the type of driver you need.\nExpand the listed drivers for more details,",
+    "transcribed": "select driver then under category select the type of driver you need expand the list of drivers for more details and optionally click the view full driver details",
+    "accuracy": 0.0,
+    "spoken_start": 28.5,
+    "spoken_end": 42.56,
+    "offset": -2.379999999999999,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 27
+    }
+  },
+  {
+    "caption_start": 40.16,
+    "caption_end": 45.36,
+    "original": "and optionally click the 'View\u00c2\u00a0\nfull driver details' link.",
+    "transcribed": "list of drivers for more details and optionally click the view full driver details link click download to save the dup",
+    "accuracy": 0.0,
+    "spoken_start": 38.04,
+    "spoken_end": 46.96,
+    "offset": -2.1199999999999974,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 20
+    }
+  },
+  {
+    "caption_start": 45.36,
+    "caption_end": 53.6,
+    "original": "Click 'Download' to save the DUP.\nFor Windows, right click the DUP",
+    "transcribed": "click download to save the dup for windows right click the dup and select download select run as administrator",
+    "accuracy": 0.0,
+    "spoken_start": 44.92,
+    "spoken_end": 55.26,
+    "offset": -0.4399999999999977,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 18
+    }
+  },
+  {
+    "caption_start": 53.6,
+    "caption_end": 59.28,
+    "original": "and select 'Run as Administrator'.\nReview the release notes, then click",
+    "transcribed": "for windows right click the dup and select download select run as administrator review the release notes then click install to start the update",
+    "accuracy": 0.0,
+    "spoken_start": 51.06,
+    "spoken_end": 60.58,
+    "offset": -2.539999999999999,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 23
+    }
+  },
+  {
+    "caption_start": 59.28,
+    "caption_end": 60.0,
+    "original": "'Install' to start the update.\nThanks for watching",
+    "transcribed": "review the release notes then click install to start the update",
+    "accuracy": 0.0,
+    "spoken_start": 57.2,
+    "spoken_end": 60.58,
+    "offset": -2.0799999999999983,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 10
+    }
+  },
+  {
+    "caption_start": 60.0,
+    "caption_end": 78.48,
+    "original": "'Install' to start the update.\nThanks for watching",
+    "transcribed": "release notes then click install to start the update thanks for watching",
+    "accuracy": 0.0,
+    "spoken_start": 57.88,
+    "spoken_end": 64.2,
+    "offset": -2.1199999999999974,
+    "status": "POOR",
+    "errors": {
+      "substitutions": 1,
+      "deletions": 0,
+      "insertions": 11
+    }
+  }
+]

@@ -1,0 +1,39 @@
+WEBVTT
+X-TIMESTAMP-MAP=LOCAL:00:00:00.000,MPEGTS:0
+
+00:00.000 --> 00:07.840
+Here's how to update drivers on your PowerEdge 
+server using a Dell Update Package, or DUP.
+
+00:07.840 --> 00:12.880
+Go to dell.com/support and enter your 
+systems service tag, or click 'Browse
+
+00:12.880 --> 00:22.480
+all Products' to select it manually.
+Select 'Drivers and Downloads',
+
+00:22.480 --> 00:30.880
+and choose the OS you have installed.
+Under 'Download Type' select 'Driver', then under
+
+00:30.880 --> 00:40.160
+'Category' select the type of driver you need.
+Expand the listed drivers for more details,
+
+00:40.160 --> 00:45.360
+and optionally click the 'View 
+full driver details' link.
+
+00:45.360 --> 00:53.600
+Click 'Download' to save the DUP.
+For Windows, right click the DUP
+
+00:53.600 --> 00:59.280
+and select 'Run as Administrator'.
+Review the release notes, then click
+
+00:59.280 --> 01:18.480
+'Install' to start the update.
+Thanks for watching
+
