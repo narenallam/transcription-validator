@@ -20,6 +20,9 @@ from typing import List, Dict, Tuple, Optional
 from difflib import SequenceMatcher
 import jiwer
 import webvtt
+from rich.panel import Panel
+from rich import box
+from rich.align import Align
 
 console = Console()
 
@@ -270,12 +273,25 @@ class VideoTranscriber:
             raise
 
     def transcribe_audio(self, audio_path: str) -> List[Dict]:
+        from rich.progress import Progress, SpinnerColumn, TextColumn
+
         self.console.print(
             "[yellow]Transcribing audio with word timestamps...[/yellow]"
         )
-        segments, _ = self.model.transcribe(
-            audio_path, language="en", word_timestamps=True
-        )
+        # Show spinner while Whisper is working
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=self.console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task("Transcribing audio (Whisper)...", total=None)
+            segments, _ = self.model.transcribe(
+                audio_path, language="en", word_timestamps=True
+            )
+            segments = list(segments)  # This is the long-running part
+            progress.update(task, completed=1)
+        # Process segments without a progress bar
         words = []
         for segment in segments:
             if segment.words:
@@ -509,7 +525,11 @@ class VideoTranscriber:
     def save_mismatches(self, results: List[Dict], output_file: str = "matching.json"):
         with open(output_file, "w") as f:
             json.dump(results, f, indent=2)
-        self.console.print(f"[green]✓ Results saved to {output_file}[/green]")
+        self.console.print()  # Add a blank line for spacing before
+        self.console.print(
+            f"[green]✓ Results saved to [bold yellow]{output_file}[/bold yellow][/green]"
+        )
+        self.console.print()  # Add a blank line for spacing after
 
 
 def main():
