@@ -68,9 +68,9 @@ sequenceDiagram
 
 2. **Run the tool:**
    ```sh
-   python video_transcriber.py
+   python video_transcriber.py <VIDEO_URL>
    ```
-   - By default, the script uses a sample Dell Brightcove video URL. You can edit `main()` in `video_transcriber.py` to use your own URL.
+   - If we dont provide <VIDEO_URL>, by default, the script uses a sample Dell Brightcove video URL. You can edit `main()` in `video_transcriber.py` to use your own URL.
 
 3. **View the results:**
    - The tool prints a color-coded table to the terminal showing each caption, its normalized form, the best-matching transcribed text, accuracy, offset, and error details.

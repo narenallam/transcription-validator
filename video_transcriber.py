@@ -189,13 +189,9 @@ class VideoTranscriber:
 
                     response = requests.get(subtitle_url)
                     caption_text = response.text
-                    self.console.print(
-                        "[bold blue]First 20 lines of captions file:[/bold blue]"
-                    )
-                    self.console.print("\n".join(caption_text.splitlines()[:20]))
                     word_timings = _parse_timestamps(caption_text)
                     self.console.print(
-                        f"[bold blue]Extracted {len(word_timings)} word-level captions[/bold blue]"
+                        f"[bold blue]Extracted {len(word_timings)} captions[/bold blue]"
                     )
                     return word_timings
                 else:
@@ -365,18 +361,12 @@ class VideoTranscriber:
 
         # Extract captions
         self.captions = self.extract_captions(url)
-        self.console.print(
-            f"[bold yellow]Extracted {len(self.captions)} captions[/bold yellow]"
-        )
 
         # Download audio only
         audio_path = self.download_audio(url)
 
         # Transcribe the whole audio with word timestamps
         self.transcribed_words = self.transcribe_audio(audio_path)
-        self.console.print(
-            f"[bold yellow]Transcribed {len(self.transcribed_words)} words[/bold yellow]"
-        )
         os.remove(audio_path)
 
         # --- NEW: Stitch all transcribed words into a single normalized string ---
