@@ -134,5 +134,58 @@ sequenceDiagram
 
 ---
 
+## Output Table Column Explanation
+
+- **Caption Start**: Start time of the caption in the video (seconds).
+- **Caption End**: End time of the caption in the video (seconds).
+- **Original Caption**: The original caption text as extracted from the video.
+- **Normalized Original**: The cleaned/normalized version of the original caption for fair comparison.
+- **Transcribed (Whisper)**: The best-matching segment from the Whisper transcription.
+- **Accuracy %**: Percentage of words in the caption that match the transcription (after normalization).
+- **Offset (s)**: Time difference between the caption's start and the start of the best-matching transcribed segment (seconds).
+- **Status**: Match quality category (PERFECT, GOOD, FAIR, POOR).
+- **Errors**: Edit distance breakdown: S=substitutions, D=deletions, I=insertions.
+
+---
+
 ## License
 MIT 
+
+## Comparison & Matching Details
+
+### Offset Calculation
+- **Offset (s)** in the output table represents the time difference (in seconds) between when a caption is supposed to start (according to the original captions) and when the best-matching segment of the transcribed audio actually starts (according to the Whisper transcription).
+- It is calculated as:
+  
+  ```python
+  Offset = spoken_start - caption['start']
+  ```
+- A positive offset means the transcribed audio starts after the caption's expected start time; a negative offset means it starts before.
+
+### Edit-Distance Technique (Word Error Rate)
+- The tool uses the [jiwer](https://github.com/jitsi/jiwer) library to compute the word error rate (WER) between the normalized caption and the best-matching segment of the transcription.
+- WER is calculated as:
+  
+  ```
+  WER = (S + D + I) / N
+  ```
+  where S = substitutions, D = deletions, I = insertions, N = number of words in the reference.
+- The tool reports the number of substitutions, deletions, and insertions for each caption.
+
+### Text Cleaning for Matching
+- Before comparison, both the original captions and the transcribed text are normalized using a `clean_text` function.
+- This function:
+  - Converts text to lowercase
+  - Replaces or removes special characters and symbols (e.g., "." becomes " dot ", "/" becomes " slash ", etc.)
+  - Removes filler words ("um", "uh", etc.)
+  - Normalizes whitespace
+  - Handles URLs and domains to spoken forms
+- This normalization ensures that minor formatting or punctuation differences do not affect the matching accuracy.
+
+### Sliding Window Approach
+- For each caption, the tool uses a sliding window over the full transcription to find the best-matching segment.
+- The window size is based on the number of words in the normalized caption.
+- For each possible window, the tool computes the WER and selects the window with the highest accuracy as the best match.
+- This approach allows for robust matching even if the timing or segmentation between captions and transcription is not perfectly aligned.
+
+--- 
